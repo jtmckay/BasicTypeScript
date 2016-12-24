@@ -1,0 +1,13 @@
+{
+  "compilerOptions": {
+    "jsx": "react",
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "noImplicitAny": false,
+    "noEmitOnError": true,
+    "preserveConstEnums": true,
+    "sourceMap": true,
+    "target": "es2015"
+  },
+  "compileOnSave": true
+}
