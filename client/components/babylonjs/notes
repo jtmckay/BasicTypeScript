@@ -1,0 +1,7 @@
+Add to the bablyonjs.d.ts file at the end:
+
+declare module "babylonjs" {
+  export = BABYLON;
+}
+
+Otherwise there will be a "not a module" error.
