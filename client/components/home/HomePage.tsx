@@ -1,13 +1,13 @@
 import * as React from 'react';
 import { Link } from 'react-router';
-import Test from '../babylonjs/Test';
+import Scene from '../babylonjs/Scene';
 
 class HomePage extends React.Component<{}, {}> {
 
   render() {
     return (
       <div>
-          <Test />
+          <Scene />
       </div>
     );
   }
