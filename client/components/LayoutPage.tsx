@@ -5,6 +5,7 @@ class LayoutPage extends React.Component<{}, {}> {
     return (
       <div>
         <div>
+          <h1 style={{textAlign: "center", width: "100%", position: "absolute", zIndex: -1000}}>WebGL is not supported</h1>
         </div>
         <div>
           {this.props.children}

@@ -72,6 +72,7 @@
 	const ReactDOM = __webpack_require__(32);
 	const react_router_1 = __webpack_require__(178);
 	const routes_1 = __webpack_require__(233);
+	document.addEventListener('contextmenu', event => event.preventDefault());
 	ReactDOM.render(React.createElement(react_router_1.Router, { history: react_router_1.browserHistory, routes: routes_1.default }), document.getElementById('app'));
 
 
@@ -368,15 +369,8 @@
 /* 4 */
 /***/ function(module, exports) {
 
-	/*
-	object-assign
-	(c) Sindre Sorhus
-	@license MIT
-	*/
-	
 	'use strict';
 	/* eslint-disable no-unused-vars */
-	var getOwnPropertySymbols = Object.getOwnPropertySymbols;
 	var hasOwnProperty = Object.prototype.hasOwnProperty;
 	var propIsEnumerable = Object.prototype.propertyIsEnumerable;
 	
@@ -397,7 +391,7 @@
 			// Detect buggy property enumeration order in older V8 versions.
 	
 			// https://bugs.chromium.org/p/v8/issues/detail?id=4118
-			var test1 = new String('abc');  // eslint-disable-line no-new-wrappers
+			var test1 = new String('abc');  // eslint-disable-line
 			test1[5] = 'de';
 			if (Object.getOwnPropertyNames(test1)[0] === '5') {
 				return false;
@@ -426,7 +420,7 @@
 			}
 	
 			return true;
-		} catch (err) {
+		} catch (e) {
 			// We don't expect any of the above to throw, but better to be safe.
 			return false;
 		}
@@ -446,8 +440,8 @@
 				}
 			}
 	
-			if (getOwnPropertySymbols) {
-				symbols = getOwnPropertySymbols(from);
+			if (Object.getOwnPropertySymbols) {
+				symbols = Object.getOwnPropertySymbols(from);
 				for (var i = 0; i < symbols.length; i++) {
 					if (propIsEnumerable.call(from, symbols[i])) {
 						to[symbols[i]] = from[symbols[i]];
@@ -657,7 +651,7 @@
 
 /***/ },
 /* 6 */
-[240, 7],
+[243, 7],
 /* 7 */
 /***/ function(module, exports) {
 
@@ -2991,14 +2985,7 @@
 	    // We warn in this case but don't throw. We expect the element creation to
 	    // succeed and there will likely be errors in render.
 	    if (!validType) {
-	      if (typeof type !== 'function' && typeof type !== 'string') {
-	        var info = '';
-	        if (type === undefined || typeof type === 'object' && type !== null && Object.keys(type).length === 0) {
-	          info += ' You likely forgot to export your component from the file ' + 'it\'s defined in.';
-	        }
-	        info += getDeclarationErrorAddendum();
-	        process.env.NODE_ENV !== 'production' ? warning(false, 'React.createElement: type is invalid -- expected a string (for ' + 'built-in components) or a class/function (for composite ' + 'components) but got: %s.%s', type == null ? type : typeof type, info) : void 0;
-	      }
+	      process.env.NODE_ENV !== 'production' ? warning(false, 'React.createElement: type should not be null, undefined, boolean, or ' + 'number. It should be a string (for DOM elements) or a ReactClass ' + '(for composite components).%s', getDeclarationErrorAddendum()) : void 0;
 	    }
 	
 	    var element = ReactElement.createElement.apply(this, arguments);
@@ -3969,7 +3956,7 @@
 	
 	'use strict';
 	
-	module.exports = '15.4.2';
+	module.exports = '15.4.1';
 
 /***/ },
 /* 31 */
@@ -4168,13 +4155,6 @@
 	var internalInstanceKey = '__reactInternalInstance$' + Math.random().toString(36).slice(2);
 	
 	/**
-	 * Check if a given node should be cached.
-	 */
-	function shouldPrecacheNode(node, nodeID) {
-	  return node.nodeType === 1 && node.getAttribute(ATTR_NAME) === String(nodeID) || node.nodeType === 8 && node.nodeValue === ' react-text: ' + nodeID + ' ' || node.nodeType === 8 && node.nodeValue === ' react-empty: ' + nodeID + ' ';
-	}
-	
-	/**
 	 * Drill down (through composites and empty components) until we get a host or
 	 * host text component.
 	 *
@@ -4239,7 +4219,7 @@
 	    }
 	    // We assume the child nodes are in the same order as the child instances.
 	    for (; childNode !== null; childNode = childNode.nextSibling) {
-	      if (shouldPrecacheNode(childNode, childID)) {
+	      if (childNode.nodeType === 1 && childNode.getAttribute(ATTR_NAME) === String(childID) || childNode.nodeType === 8 && childNode.nodeValue === ' react-text: ' + childID + ' ' || childNode.nodeType === 8 && childNode.nodeValue === ' react-empty: ' + childID + ' ') {
 	        precacheNode(childInst, childNode);
 	        continue outer;
 	      }
@@ -6369,7 +6349,7 @@
 
 /***/ },
 /* 50 */
-[240, 35],
+[243, 35],
 /* 51 */
 /***/ function(module, exports, __webpack_require__) {
 
@@ -11181,18 +11161,12 @@
 	    } else {
 	      var contentToUse = CONTENT_TYPES[typeof props.children] ? props.children : null;
 	      var childrenToUse = contentToUse != null ? null : props.children;
-	      // TODO: Validate that text is allowed as a child of this node
 	      if (contentToUse != null) {
-	        // Avoid setting textContent when the text is empty. In IE11 setting
-	        // textContent on a text area will cause the placeholder to not
-	        // show within the textarea until it has been focused and blurred again.
-	        // https://github.com/facebook/react/issues/6731#issuecomment-254874553
-	        if (contentToUse !== '') {
-	          if (process.env.NODE_ENV !== 'production') {
-	            setAndValidateContentChildDev.call(this, contentToUse);
-	          }
-	          DOMLazyTree.queueText(lazyTree, contentToUse);
+	        // TODO: Validate that text is allowed as a child of this node
+	        if (process.env.NODE_ENV !== 'production') {
+	          setAndValidateContentChildDev.call(this, contentToUse);
 	        }
+	        DOMLazyTree.queueText(lazyTree, contentToUse);
 	      } else if (childrenToUse != null) {
 	        var mountImages = this.mountChildren(childrenToUse, transaction, context);
 	        for (var i = 0; i < mountImages.length; i++) {
@@ -13112,17 +13086,7 @@
 	      }
 	    } else {
 	      if (props.value == null && props.defaultValue != null) {
-	        // In Chrome, assigning defaultValue to certain input types triggers input validation.
-	        // For number inputs, the display value loses trailing decimal points. For email inputs,
-	        // Chrome raises "The specified value <x> is not a valid email address".
-	        //
-	        // Here we check to see if the defaultValue has actually changed, avoiding these problems
-	        // when the user is inputting text
-	        //
-	        // https://github.com/facebook/react/issues/7253
-	        if (node.defaultValue !== '' + props.defaultValue) {
-	          node.defaultValue = '' + props.defaultValue;
-	        }
+	        node.defaultValue = '' + props.defaultValue;
 	      }
 	      if (props.checked == null && props.defaultChecked != null) {
 	        node.defaultChecked = !!props.defaultChecked;
@@ -13850,15 +13814,9 @@
 	    // This is in postMount because we need access to the DOM node, which is not
 	    // available until after the component has mounted.
 	    var node = ReactDOMComponentTree.getNodeFromInstance(inst);
-	    var textContent = node.textContent;
 	
-	    // Only set node.value if textContent is equal to the expected
-	    // initial value. In IE10/IE11 there is a bug where the placeholder attribute
-	    // will populate textContent as well.
-	    // https://developer.microsoft.com/microsoft-edge/platform/issues/101525/
-	    if (textContent === inst._wrapperState.initialValue) {
-	      node.value = textContent;
-	    }
+	    // Warning: node.value may be the empty string at this point (IE11) if placeholder is set.
+	    node.value = node.textContent; // Detach value from defaultValue
 	  }
 	};
 	
@@ -14660,17 +14618,7 @@
 	    instance = ReactEmptyComponent.create(instantiateReactComponent);
 	  } else if (typeof node === 'object') {
 	    var element = node;
-	    var type = element.type;
-	    if (typeof type !== 'function' && typeof type !== 'string') {
-	      var info = '';
-	      if (process.env.NODE_ENV !== 'production') {
-	        if (type === undefined || typeof type === 'object' && type !== null && Object.keys(type).length === 0) {
-	          info += ' You likely forgot to export your component from the file ' + 'it\'s defined in.';
-	        }
-	      }
-	      info += getDeclarationErrorAddendum(element._owner);
-	       true ? process.env.NODE_ENV !== 'production' ? invariant(false, 'Element type is invalid: expected a string (for built-in components) or a class/function (for composite components) but got: %s.%s', type == null ? type : typeof type, info) : _prodInvariant('130', type == null ? type : typeof type, info) : void 0;
-	    }
+	    !(element && (typeof element.type === 'function' || typeof element.type === 'string')) ? process.env.NODE_ENV !== 'production' ? invariant(false, 'Element type is invalid: expected a string (for built-in components) or a class/function (for composite components) but got: %s.%s', element.type == null ? element.type : typeof element.type, getDeclarationErrorAddendum(element._owner)) : _prodInvariant('130', element.type == null ? element.type : typeof element.type, getDeclarationErrorAddendum(element._owner)) : void 0;
 	
 	    // Special case string values
 	    if (typeof element.type === 'string') {
@@ -14960,7 +14908,7 @@
 	      // Since plain JS classes are defined without any special initialization
 	      // logic, we can not catch common errors early. Therefore, we have to
 	      // catch them here, at initialization time, instead.
-	      process.env.NODE_ENV !== 'production' ? warning(!inst.getInitialState || inst.getInitialState.isReactClassApproved || inst.state, 'getInitialState was defined on %s, a plain JavaScript class. ' + 'This is only supported for classes created using React.createClass. ' + 'Did you mean to define a state property instead?', this.getName() || 'a component') : void 0;
+	      process.env.NODE_ENV !== 'production' ? warning(!inst.getInitialState || inst.getInitialState.isReactClassApproved, 'getInitialState was defined on %s, a plain JavaScript class. ' + 'This is only supported for classes created using React.createClass. ' + 'Did you mean to define a state property instead?', this.getName() || 'a component') : void 0;
 	      process.env.NODE_ENV !== 'production' ? warning(!inst.getDefaultProps || inst.getDefaultProps.isReactClassApproved, 'getDefaultProps was defined on %s, a plain JavaScript class. ' + 'This is only supported for classes created using React.createClass. ' + 'Use a static property to define defaultProps instead.', this.getName() || 'a component') : void 0;
 	      process.env.NODE_ENV !== 'production' ? warning(!inst.propTypes, 'propTypes was defined as an instance property on %s. Use a static ' + 'property to define propTypes instead.', this.getName() || 'a component') : void 0;
 	      process.env.NODE_ENV !== 'production' ? warning(!inst.contextTypes, 'contextTypes was defined as an instance property on %s. Use a ' + 'static property to define contextTypes instead.', this.getName() || 'a component') : void 0;
@@ -15936,11 +15884,14 @@
 	
 	'use strict';
 	
-	var _prodInvariant = __webpack_require__(35);
+	var _prodInvariant = __webpack_require__(35),
+	    _assign = __webpack_require__(4);
 	
 	var invariant = __webpack_require__(8);
 	
 	var genericComponentClass = null;
+	// This registry keeps track of wrapper classes around host tags.
+	var tagToComponentClass = {};
 	var textComponentClass = null;
 	
 	var ReactHostComponentInjection = {
@@ -15953,6 +15904,11 @@
 	  // rendered as props.
 	  injectTextComponentClass: function (componentClass) {
 	    textComponentClass = componentClass;
+	  },
+	  // This accepts a keyed object with classes as values. Each key represents a
+	  // tag. That particular tag will use this class instead of the generic one.
+	  injectComponentClasses: function (componentClasses) {
+	    _assign(tagToComponentClass, componentClasses);
 	  }
 	};
 	
@@ -21340,7 +21296,7 @@
 	
 	  var match = void 0,
 	      lastIndex = 0,
-	      matcher = /:([a-zA-Z_$][a-zA-Z0-9_$]*)|\*\*|\*|\(|\)|\\\(|\\\)/g;
+	      matcher = /:([a-zA-Z_$][a-zA-Z0-9_$]*)|\*\*|\*|\(|\)/g;
 	  while (match = matcher.exec(pattern)) {
 	    if (match.index !== lastIndex) {
 	      tokens.push(pattern.slice(lastIndex, match.index));
@@ -21360,10 +21316,6 @@
 	      regexpSource += '(?:';
 	    } else if (match[0] === ')') {
 	      regexpSource += ')?';
-	    } else if (match[0] === '\\(') {
-	      regexpSource += '\\(';
-	    } else if (match[0] === '\\)') {
-	      regexpSource += '\\)';
 	    }
 	
 	    tokens.push(match[0]);
@@ -21518,10 +21470,6 @@
 	      parenCount -= 1;
 	
 	      if (parenCount) parenHistory[parenCount - 1] += parenText;else pathname += parenText;
-	    } else if (token === '\\(') {
-	      pathname += '(';
-	    } else if (token === '\\)') {
-	      pathname += ')';
 	    } else if (token.charAt(0) === ':') {
 	      paramName = token.substring(1);
 	      paramValue = params[paramName];
@@ -21732,7 +21680,7 @@
 	        children = _props.children;
 	
 	
-	    !history.getCurrentLocation ? process.env.NODE_ENV !== 'production' ? (0, _invariant2.default)(false, 'You have provided a history object created with history v4.x or v2.x ' + 'and earlier. This version of React Router is only compatible with v3 ' + 'history objects. Please change to history v3.x.') : (0, _invariant2.default)(false) : void 0;
+	    !history.getCurrentLocation ? process.env.NODE_ENV !== 'production' ? (0, _invariant2.default)(false, 'You have provided a history object created with history v2.x or ' + 'earlier. This version of React Router is only compatible with v3 ' + 'history objects. Please upgrade to history v3.x.') : (0, _invariant2.default)(false) : void 0;
 	
 	    return (0, _createTransitionManager3.default)(history, (0, _RouteUtils.createRoutes)(routes || children));
 	  },
@@ -22389,7 +22337,7 @@
 	  return runTransitionHooks(hooks.length, function (index, replace, next) {
 	    var wrappedNext = function wrappedNext() {
 	      if (enterHooks.has(hooks[index])) {
-	        next.apply(undefined, arguments);
+	        next();
 	        enterHooks.remove(hooks[index]);
 	      }
 	    };
@@ -22413,7 +22361,7 @@
 	  return runTransitionHooks(hooks.length, function (index, replace, next) {
 	    var wrappedNext = function wrappedNext() {
 	      if (changeHooks.has(hooks[index])) {
-	        next.apply(undefined, arguments);
+	        next();
 	        changeHooks.remove(hooks[index]);
 	      }
 	    };
@@ -22815,14 +22763,9 @@
 	    if ((0, _PromiseUtils.isPromise)(indexRoutesReturn)) indexRoutesReturn.then(function (indexRoute) {
 	      return callback(null, (0, _RouteUtils.createRoutes)(indexRoute)[0]);
 	    }, callback);
-	  } else if (route.childRoutes || route.getChildRoutes) {
-	    var onChildRoutes = function onChildRoutes(error, childRoutes) {
-	      if (error) {
-	        callback(error);
-	        return;
-	      }
-	
-	      var pathless = childRoutes.filter(function (childRoute) {
+	  } else if (route.childRoutes) {
+	    (function () {
+	      var pathless = route.childRoutes.filter(function (childRoute) {
 	        return !childRoute.path;
 	      });
 	
@@ -22838,12 +22781,7 @@
 	      }, function (err, routes) {
 	        callback(null, routes);
 	      });
-	    };
-	
-	    var result = getChildRoutes(route, location, paramNames, paramValues, onChildRoutes);
-	    if (result) {
-	      onChildRoutes.apply(undefined, result);
-	    }
+	    })();
 	  } else {
 	    callback();
 	  }
@@ -22897,7 +22835,7 @@
 	    // By assumption, pattern is non-empty here, which is the prerequisite for
 	    // actually terminating a match.
 	    if (remainingPathname === '') {
-	      var _ret = function () {
+	      var _ret2 = function () {
 	        var match = {
 	          routes: [route],
 	          params: createParams(paramNames, paramValues)
@@ -22928,7 +22866,7 @@
 	        };
 	      }();
 	
-	      if ((typeof _ret === 'undefined' ? 'undefined' : _typeof(_ret)) === "object") return _ret.v;
+	      if ((typeof _ret2 === 'undefined' ? 'undefined' : _typeof(_ret2)) === "object") return _ret2.v;
 	    }
 	  }
 	
@@ -23506,7 +23444,7 @@
 	
 	    if (router) {
 	      // If user does not specify a `to` prop, return an empty anchor tag.
-	      if (!to) {
+	      if (to == null) {
 	        return _react2.default.createElement('a', props);
 	      }
 	
@@ -23623,10 +23561,6 @@
 	      var _this = this;
 	
 	      var router = this.props.router || this.context.router;
-	      if (!router) {
-	        return _react2.default.createElement(WrappedComponent, this.props);
-	      }
-	
 	      var params = router.params,
 	          location = router.location,
 	          routes = router.routes;
@@ -24292,92 +24226,6 @@
 	var strictUriEncode = __webpack_require__(212);
 	var objectAssign = __webpack_require__(4);
 	
-	function encoderForArrayFormat(opts) {
-		switch (opts.arrayFormat) {
-			case 'index':
-				return function (key, value, index) {
-					return value === null ? [
-						encode(key, opts),
-						'[',
-						index,
-						']'
-					].join('') : [
-						encode(key, opts),
-						'[',
-						encode(index, opts),
-						']=',
-						encode(value, opts)
-					].join('');
-				};
-	
-			case 'bracket':
-				return function (key, value) {
-					return value === null ? encode(key, opts) : [
-						encode(key, opts),
-						'[]=',
-						encode(value, opts)
-					].join('');
-				};
-	
-			default:
-				return function (key, value) {
-					return value === null ? encode(key, opts) : [
-						encode(key, opts),
-						'=',
-						encode(value, opts)
-					].join('');
-				};
-		}
-	}
-	
-	function parserForArrayFormat(opts) {
-		var result;
-	
-		switch (opts.arrayFormat) {
-			case 'index':
-				return function (key, value, accumulator) {
-					result = /\[(\d*)]$/.exec(key);
-	
-					key = key.replace(/\[\d*]$/, '');
-	
-					if (!result) {
-						accumulator[key] = value;
-						return;
-					}
-	
-					if (accumulator[key] === undefined) {
-						accumulator[key] = {};
-					}
-	
-					accumulator[key][result[1]] = value;
-				};
-	
-			case 'bracket':
-				return function (key, value, accumulator) {
-					result = /(\[])$/.exec(key);
-	
-					key = key.replace(/\[]$/, '');
-	
-					if (!result || accumulator[key] === undefined) {
-						accumulator[key] = value;
-						return;
-					}
-	
-					accumulator[key] = [].concat(accumulator[key], value);
-				};
-	
-			default:
-				return function (key, value, accumulator) {
-					if (accumulator[key] === undefined) {
-						accumulator[key] = value;
-						return;
-					}
-	
-					accumulator[key] = [].concat(accumulator[key], value);
-				};
-		}
-	}
-	
 	function encode(value, opts) {
 		if (opts.encode) {
 			return opts.strict ? strictUriEncode(value) : encodeURIComponent(value);
@@ -24386,29 +24234,11 @@
 		return value;
 	}
 	
-	function keysSorter(input) {
-		if (Array.isArray(input)) {
-			return input.sort();
-		} else if (typeof input === 'object') {
-			return keysSorter(Object.keys(input)).sort(function (a, b) {
-				return Number(a) - Number(b);
-			}).map(function (key) {
-				return input[key];
-			});
-		}
-	
-		return input;
-	}
-	
 	exports.extract = function (str) {
 		return str.split('?')[1] || '';
 	};
 	
-	exports.parse = function (str, opts) {
-		opts = objectAssign({arrayFormat: 'none'}, opts);
-	
-		var formatter = parserForArrayFormat(opts);
-	
+	exports.parse = function (str) {
 		// Create an object with no prototype
 		// https://github.com/sindresorhus/query-string/issues/47
 		var ret = Object.create(null);
@@ -24430,36 +24260,31 @@
 			var key = parts.shift();
 			var val = parts.length > 0 ? parts.join('=') : undefined;
 	
+			key = decodeURIComponent(key);
+	
 			// missing `=` should be `null`:
 			// http://w3.org/TR/2012/WD-url-20120524/#collect-url-parameters
 			val = val === undefined ? null : decodeURIComponent(val);
 	
-			formatter(decodeURIComponent(key), val, ret);
+			if (ret[key] === undefined) {
+				ret[key] = val;
+			} else if (Array.isArray(ret[key])) {
+				ret[key].push(val);
+			} else {
+				ret[key] = [ret[key], val];
+			}
 		});
 	
-		return Object.keys(ret).sort().reduce(function (result, key) {
-			var val = ret[key];
-			if (Boolean(val) && typeof val === 'object' && !Array.isArray(val)) {
-				// Sort object keys, not values
-				result[key] = keysSorter(val);
-			} else {
-				result[key] = val;
-			}
-	
-			return result;
-		}, Object.create(null));
+		return ret;
 	};
 	
 	exports.stringify = function (obj, opts) {
 		var defaults = {
 			encode: true,
-			strict: true,
-			arrayFormat: 'none'
+			strict: true
 		};
 	
 		opts = objectAssign(defaults, opts);
-	
-		var formatter = encoderForArrayFormat(opts);
 	
 		return obj ? Object.keys(obj).sort().map(function (key) {
 			var val = obj[key];
@@ -24480,7 +24305,11 @@
 						return;
 					}
 	
-					result.push(formatter(key, val2, result.length));
+					if (val2 === null) {
+						result.push(encode(key, opts));
+					} else {
+						result.push(encode(key, opts) + '=' + encode(val2, opts));
+					}
 				});
 	
 				return result.join('&');
@@ -26090,7 +25919,7 @@
 	const react_router_1 = __webpack_require__(178);
 	const LayoutPage_1 = __webpack_require__(234);
 	const HomePage_1 = __webpack_require__(235);
-	const OtherPage_1 = __webpack_require__(239);
+	const OtherPage_1 = __webpack_require__(242);
 	Object.defineProperty(exports, "__esModule", { value: true });
 	exports.default = (React.createElement(react_router_1.Route, { path: "/", component: LayoutPage_1.default },
 	    React.createElement(react_router_1.IndexRoute, { component: HomePage_1.default }),
@@ -26106,7 +25935,8 @@
 	class LayoutPage extends React.Component {
 	    render() {
 	        return (React.createElement("div", null,
-	            React.createElement("div", null),
+	            React.createElement("div", null,
+	                React.createElement("h1", { style: { textAlign: "center", width: "100%", position: "absolute", zIndex: -1000 } }, "WebGL is not supported")),
 	            React.createElement("div", null, this.props.children),
 	            React.createElement("div", null)));
 	    }
@@ -26121,11 +25951,11 @@
 
 	"use strict";
 	const React = __webpack_require__(1);
-	const Scene_1 = __webpack_require__(236);
+	const Canvas_1 = __webpack_require__(236);
 	class HomePage extends React.Component {
 	    render() {
 	        return (React.createElement("div", null,
-	            React.createElement(Scene_1.default, null)));
+	            React.createElement(Canvas_1.default, null)));
 	    }
 	}
 	Object.defineProperty(exports, "__esModule", { value: true });
@@ -26140,110 +25970,82 @@
 	const React = __webpack_require__(1);
 	const BABYLON = __webpack_require__(237);
 	const Light_1 = __webpack_require__(238);
-	class Scene extends React.Component {
+	const UniversalCamera_1 = __webpack_require__(239);
+	const Ground_1 = __webpack_require__(240);
+	const Sphere_1 = __webpack_require__(241);
+	class Canvas extends React.Component {
 	    constructor(props) {
 	        super(props);
 	        this.state = {
-	            scene: null
+	            position: new BABYLON.Vector3(-30, 0, 0)
 	        };
+	        this.pointerLock = this.pointerLock.bind(this);
+	        this.mouseUp = this.mouseUp.bind(this);
 	    }
 	    componentDidMount() {
 	        this.canvas = document.getElementById("renderCanvas");
 	        this.engine = new BABYLON.Engine(this.canvas, true);
-	        let scene = this.createScene();
+	        this.setState({ scene: this.createScene() });
+	        window.addEventListener("resize", function () {
+	            this.engine.resize();
+	        }.bind(this));
+	    }
+	    pointerLock(event) {
+	        this.canvas.requestPointerLock();
+	        this.setState({ position: new BABYLON.Vector3(10, 0, 0) });
+	    }
+	    mouseUp(event) {
+	        document.exitPointerLock();
+	    }
+	    mouseMoved(event) {
+	        //event.target.innerHTML = "Position: " + event.clientX + ", " + event.clientY;
+	    }
+	    createScene() {
+	        let scene = new BABYLON.Scene(this.engine);
+	        scene.collisionsEnabled = true;
 	        let gravityVector = new BABYLON.Vector3(0, -9.81, 0);
 	        let physicPlugin = new BABYLON.OimoJSPlugin();
 	        scene.enablePhysics(gravityVector, physicPlugin);
 	        this.engine.runRenderLoop(function () {
 	            scene.render();
 	        });
-	        this.setState({ scene: scene });
-	        window.addEventListener("resize", function () {
-	            this.engine.resize();
-	        }.bind(this));
-	    }
-	    createScene() {
-	        let scene = new BABYLON.Scene(this.engine);
-	        scene.gravity = new BABYLON.Vector3(0, -9.81, 0);
-	        scene.collisionsEnabled = true;
-	        var camera = new BABYLON.UniversalCamera("Camera", new BABYLON.Vector3(-10, 0, -30), scene);
-	        camera.attachControl(this.canvas, true);
-	        camera.applyGravity = true;
-	        camera.checkCollisions = true;
-	        camera.ellipsoid = new BABYLON.Vector3(1, 1, 1);
-	        var ground = BABYLON.Mesh.CreateGround("ground1", 100, 100, 2, scene);
-	        ground.position.y = -5;
-	        //Creation of spheres
-	        var sphere1 = BABYLON.Mesh.CreateSphere("Sphere1", 10.0, 6.0, scene, true, 2);
-	        var materialSphere1 = new BABYLON.StandardMaterial("texture1", scene);
-	        materialSphere1.emissiveTexture = new BABYLON.Texture("textures/penguin.png", scene);
-	        sphere1.material = materialSphere1;
-	        sphere1.checkCollisions = true;
-	        var animationBox = new BABYLON.Animation("myAnimation", "scaling.x", 30, BABYLON.Animation.ANIMATIONTYPE_FLOAT, BABYLON.Animation.ANIMATIONLOOPMODE_CYCLE);
-	        // An array with all animation keys
-	        var keys = [];
-	        //At the animation key 0, the value of scaling is "1"
-	        keys.push({
-	            frame: 0,
-	            value: 1
-	        });
-	        //At the animation key 20, the value of scaling is "0.2"
-	        keys.push({
-	            frame: 20,
-	            value: 0.2
-	        });
-	        //At the animation key 100, the value of scaling is "1"
-	        keys.push({
-	            frame: 100,
-	            value: 1
-	        });
-	        animationBox.setKeys(keys);
-	        sphere1.animations.push(animationBox);
-	        scene.beginAnimation(sphere1, 0, 100, true);
-	        sphere1.ellipsoid = new BABYLON.Vector3(.5, 1, .5);
-	        var sphere2 = BABYLON.Mesh.CreateSphere("Sphere2", 10.0, 7.0, scene);
-	        var materialSphere2 = new BABYLON.StandardMaterial("texture1", scene);
-	        materialSphere2.diffuseColor = new BABYLON.Color3(.5, 1, .5);
-	        materialSphere2.specularColor = new BABYLON.Color3(0, 1, 0);
-	        materialSphere2.specularPower = 32;
-	        sphere2.material = materialSphere2;
-	        sphere2.checkCollisions = true;
-	        sphere2.position.x = -30;
-	        var sphere3 = BABYLON.Mesh.CreateSphere("Sphere3", 10.0, 8.0, scene);
-	        var materialSphere3 = new BABYLON.StandardMaterial("texture1", scene);
-	        materialSphere3.diffuseColor = new BABYLON.Color3(1.0, 0.2, 0.7);
-	        sphere3.material = materialSphere3;
-	        sphere3.checkCollisions = true;
-	        sphere3.position.x = -40;
-	        var materialGround = new BABYLON.StandardMaterial("texture1", scene);
-	        materialGround.diffuseColor = new BABYLON.Color3(.5, .5, 1);
-	        ground.material = materialGround;
-	        ground.checkCollisions = true;
-	        var speedCharacter = 8;
-	        var gravity = 0.15;
-	        var character = sphere1;
-	        character.ellipsoid = new BABYLON.Vector3(0.5, 1.0, 0.5);
-	        character.ellipsoidOffset = new BABYLON.Vector3(0, 1.0, 0);
-	        var forwards = new BABYLON.Vector3(Math.sin(character.rotation.y) / speedCharacter, gravity, Math.cos(character.rotation.y) / speedCharacter);
-	        forwards.negate();
-	        character.moveWithCollisions(forwards);
-	        // or
-	        var backwards = new BABYLON.Vector3(Math.sin(character.rotation.y) / speedCharacter, -gravity, Math.cos(character.rotation.y) / speedCharacter);
-	        character.moveWithCollisions(backwards);
 	        return scene;
 	    }
 	    render() {
 	        if (this.state.scene) {
-	            return (React.createElement("canvas", { id: "renderCanvas", style: { width: "100vw", height: "100vh", touchAction: "none" } },
-	                React.createElement(Light_1.default, { scene: this.state.scene })));
+	            return (React.createElement("canvas", { id: "renderCanvas", style: { width: "100vw", height: "100vh" }, onMouseDown: this.pointerLock, onMouseUp: this.mouseUp, onWheel: (event) => console.log(event.deltaY) },
+	                React.createElement(Light_1.default, { scene: this.state.scene }),
+	                React.createElement(UniversalCamera_1.default, { scene: this.state.scene, canvas: this.canvas }),
+	                React.createElement(Ground_1.default, { scene: this.state.scene, material: (function () {
+	                        let material = new BABYLON.StandardMaterial("texture1", this.state.scene);
+	                        material.diffuseColor = new BABYLON.Color3(.5, .5, 1);
+	                        return material;
+	                    }.bind(this))() }),
+	                React.createElement(Sphere_1.default, { scene: this.state.scene, segments: 20, diameter: 6, mass: 6, material: (function () {
+	                        let material = new BABYLON.StandardMaterial("texture1", this.state.scene);
+	                        material.emissiveTexture = new BABYLON.Texture("textures/penguin.png", this.state.scene);
+	                        return material;
+	                    }.bind(this))(), position: new BABYLON.Vector3(0, 0, 0) }),
+	                React.createElement(Sphere_1.default, { scene: this.state.scene, segments: 20, diameter: 7, mass: 7, material: (function () {
+	                        let material = new BABYLON.StandardMaterial("texture1", this.state.scene);
+	                        material.diffuseColor = new BABYLON.Color3(.5, 1, .5);
+	                        material.specularColor = new BABYLON.Color3(0, 1, 0);
+	                        material.specularPower = 32;
+	                        return material;
+	                    }.bind(this))(), position: this.state.position }),
+	                React.createElement(Sphere_1.default, { scene: this.state.scene, segments: 20, diameter: 8, mass: 8, material: (function () {
+	                        let material = new BABYLON.StandardMaterial("texture1", this.state.scene);
+	                        material.diffuseColor = new BABYLON.Color3(1.0, 0.2, 0.7);
+	                        return material;
+	                    }.bind(this))(), position: new BABYLON.Vector3(-50, 0, 0) })));
 	        }
 	        else {
-	            return (React.createElement("canvas", { id: "renderCanvas", style: { width: "100vw", height: "100vh", touchAction: "none" } }));
+	            return (React.createElement("canvas", { id: "renderCanvas", style: { width: "100vw", height: "100vh" } }));
 	        }
 	    }
 	}
 	Object.defineProperty(exports, "__esModule", { value: true });
-	exports.default = Scene;
+	exports.default = Canvas;
 
 
 /***/ },
@@ -26289,10 +26091,9 @@
 	const BABYLON = __webpack_require__(237);
 	class Light extends React.Component {
 	    componentDidMount() {
-	        debugger;
 	        this.light = new BABYLON.HemisphericLight("Hemi0", new BABYLON.Vector3(0, 1, 0), this.props.scene);
-	        this.light.diffuse = new BABYLON.Color3(0, 1, 0);
-	        this.light.specular = new BABYLON.Color3(0, 1, 0);
+	        this.light.diffuse = new BABYLON.Color3(1, 1, 1);
+	        this.light.specular = new BABYLON.Color3(1, 1, 1);
 	        this.light.groundColor = new BABYLON.Color3(0, 0, 0);
 	    }
 	    componentWillUnmount() {
@@ -26312,6 +26113,140 @@
 
 	"use strict";
 	const React = __webpack_require__(1);
+	const BABYLON = __webpack_require__(237);
+	class UniversalCamera extends React.Component {
+	    componentDidMount() {
+	        this.camera = new BABYLON.UniversalCamera("Camera", new BABYLON.Vector3(-10, -6, -30), this.props.scene);
+	        this.camera.attachControl(this.props.canvas, true);
+	        this.camera.applyGravity = true;
+	        this.camera.checkCollisions = true;
+	        this.camera.ellipsoid = new BABYLON.Vector3(2, 2, 2);
+	    }
+	    componentWillUnmount() {
+	        this.camera.dispose();
+	    }
+	    render() {
+	        return null;
+	    }
+	}
+	Object.defineProperty(exports, "__esModule", { value: true });
+	exports.default = UniversalCamera;
+
+
+/***/ },
+/* 240 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	const React = __webpack_require__(1);
+	const BABYLON = __webpack_require__(237);
+	class Ground extends React.Component {
+	    componentDidMount() {
+	        this.ground = BABYLON.Mesh.CreateGround("ground1", 100, 100, 2, this.props.scene);
+	        this.ground.position.y = -10;
+	        this.ground.material = this.props.material;
+	        this.ground.checkCollisions = true;
+	    }
+	    componentWillUnmount() {
+	        this.ground.dispose();
+	        this.props.material.dispose();
+	    }
+	    render() {
+	        return null;
+	    }
+	}
+	Object.defineProperty(exports, "__esModule", { value: true });
+	exports.default = Ground;
+
+
+/***/ },
+/* 241 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	const React = __webpack_require__(1);
+	const BABYLON = __webpack_require__(237);
+	class Sphere extends React.Component {
+	    componentWillReceiveProps(props) {
+	        let animation = new BABYLON.Animation("myAnimation", "position", 30, BABYLON.Animation.ANIMATIONTYPE_VECTOR3, BABYLON.Animation.ANIMATIONLOOPMODE_CONSTANT);
+	        // An array with all animation keys
+	        var keys = [];
+	        //At the animation key 0, the value of scaling is "1"
+	        keys.push({
+	            frame: 0,
+	            value: this.props.position
+	        });
+	        //At the animation key 100, the value of scaling is "1"
+	        keys.push({
+	            frame: 100,
+	            value: props.position
+	        });
+	        animation.setKeys(keys);
+	        this.sphere.animations.push(animation);
+	        if (this.props.position.x != props.position.x) {
+	            this.props.scene.beginAnimation(this.sphere, 0, 100, true);
+	        }
+	    }
+	    componentDidMount() {
+	        this.sphere = BABYLON.Mesh.CreateSphere("Sphere1", this.props.segments, this.props.diameter, this.props.scene, true);
+	        this.sphere.ellipsoid = new BABYLON.Vector3(this.props.diameter / 4, this.props.diameter / 4, this.props.diameter / 4);
+	        this.sphere.checkCollisions = true;
+	        this.sphere.material = this.props.material;
+	        this.sphere.position = this.props.position;
+	        //this.sphere.setPhysicsState(BABYLON.PhysicsEngine.SphereImpostor, { mass: this.props.mass, friction: 1, restitution: 1 });
+	        //this.sphere.onCollide = event => console.log(event);
+	        var animationBox = new BABYLON.Animation("myAnimation", "scaling.x", 30, BABYLON.Animation.ANIMATIONTYPE_FLOAT, BABYLON.Animation.ANIMATIONLOOPMODE_CYCLE);
+	        // An array with all animation keys
+	        var keys = [];
+	        //At the animation key 0, the value of scaling is "1"
+	        keys.push({
+	            frame: 0,
+	            value: 1
+	        });
+	        //At the animation key 20, the value of scaling is "0.2"
+	        keys.push({
+	            frame: 20,
+	            value: 0.2
+	        });
+	        //At the animation key 100, the value of scaling is "1"
+	        keys.push({
+	            frame: 100,
+	            value: 1
+	        });
+	        animationBox.setKeys(keys);
+	        this.sphere.animations.push(animationBox);
+	        this.props.scene.beginAnimation(this.sphere, 0, 100, true);
+	        var speedCharacter = 8;
+	        var gravity = 0.15;
+	        var character = this.sphere;
+	        var forwards = new BABYLON.Vector3(Math.sin(character.rotation.y) / speedCharacter, gravity, Math.cos(character.rotation.y) / speedCharacter);
+	        forwards.negate();
+	        character.moveWithCollisions(forwards);
+	        // or
+	        var backwards = new BABYLON.Vector3(Math.sin(character.rotation.y) / speedCharacter, -gravity, Math.cos(character.rotation.y) / speedCharacter);
+	        character.moveWithCollisions(backwards);
+	        this.props.scene.registerBeforeRender(function () {
+	            this.sphere.moveWithCollisions(this.props.scene.gravity);
+	        }.bind(this));
+	    }
+	    componentWillUnmount() {
+	        this.sphere.dispose();
+	        this.props.material.dispose();
+	    }
+	    render() {
+	        return null;
+	    }
+	}
+	Object.defineProperty(exports, "__esModule", { value: true });
+	exports.default = Sphere;
+
+
+/***/ },
+/* 242 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	const React = __webpack_require__(1);
 	const react_router_1 = __webpack_require__(178);
 	class OtherPage extends React.Component {
 	    render() {
@@ -26326,7 +26261,7 @@
 
 
 /***/ },
-/* 240 */
+/* 243 */
 /***/ function(module, exports, __webpack_require__, __webpack_module_template_argument_0__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {/**
@@ -26397,6 +26332,17 @@
 	  }
 	};
 	
+	var fiveArgumentPooler = function (a1, a2, a3, a4, a5) {
+	  var Klass = this;
+	  if (Klass.instancePool.length) {
+	    var instance = Klass.instancePool.pop();
+	    Klass.call(instance, a1, a2, a3, a4, a5);
+	    return instance;
+	  } else {
+	    return new Klass(a1, a2, a3, a4, a5);
+	  }
+	};
+	
 	var standardReleaser = function (instance) {
 	  var Klass = this;
 	  !(instance instanceof Klass) ? process.env.NODE_ENV !== 'production' ? invariant(false, 'Trying to release an instance into a pool of a different type.') : _prodInvariant('25') : void 0;
@@ -26436,7 +26382,8 @@
 	  oneArgumentPooler: oneArgumentPooler,
 	  twoArgumentPooler: twoArgumentPooler,
 	  threeArgumentPooler: threeArgumentPooler,
-	  fourArgumentPooler: fourArgumentPooler
+	  fourArgumentPooler: fourArgumentPooler,
+	  fiveArgumentPooler: fiveArgumentPooler
 	};
 	
 	module.exports = PooledClass;
