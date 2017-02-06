@@ -2,39 +2,21 @@ import * as React from 'react';
 import * as BABYLON from 'babylonjs';
 
 interface Props {
+  scene: BABYLON.Scene;
+  hook?: (Object) => void;
+  material: BABYLON.StandardMaterial;
   position: BABYLON.Vector3;
   segments: number;
   diameter: number;
   mass: number;
-  scene: BABYLON.Scene;
-  material: BABYLON.StandardMaterial;
 }
 
 class Sphere extends React.Component<Props, {}> {
   sphere: BABYLON.Mesh;
 
   componentWillReceiveProps(props) {
-    let animation = new BABYLON.Animation("myAnimation", "position", 30, BABYLON.Animation.ANIMATIONTYPE_VECTOR3, BABYLON.Animation.ANIMATIONLOOPMODE_CONSTANT);
-
-    // An array with all animation keys
-    var keys = [];
-
-    //At the animation key 0, the value of scaling is "1"
-    keys.push({
-      frame: 0,
-      value: this.props.position
-    });
-
-    //At the animation key 100, the value of scaling is "1"
-    keys.push({
-      frame: 100,
-      value: props.position
-    });
-
-    animation.setKeys(keys);
-    this.sphere.animations.push(animation);
-    if (this.props.position.x != props.position.x) {
-      this.props.scene.beginAnimation(this.sphere, 0, 100, true);
+    if(this.props.hook) {
+      this.props.hook(this.sphere);
     }
   }
 
@@ -85,6 +67,7 @@ class Sphere extends React.Component<Props, {}> {
     var backwards = new BABYLON.Vector3(Math.sin(character.rotation.y) / speedCharacter, -gravity, Math.cos(character.rotation.y) / speedCharacter);
     character.moveWithCollisions(backwards);
 
+    //Runs every frame
     this.props.scene.registerBeforeRender(function () {
   		this.sphere.moveWithCollisions(this.props.scene.gravity);
   	}.bind(this));
