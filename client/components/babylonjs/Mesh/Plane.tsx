@@ -18,7 +18,6 @@ class Ground extends React.Component<Props, {}> {
     this.ground.position = this.props.position;
     this.ground.material = this.props.material;
     this.ground.rotation = this.props.rotation;
-    this.ground.checkCollisions = true;
     this.ground.setPhysicsState(BABYLON.PhysicsEngine.PlaneImpostor, {mass: 0});
 
     this.props.register(this.ground);
