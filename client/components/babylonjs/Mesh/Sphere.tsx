@@ -27,7 +27,7 @@ class Sphere extends React.Component<Props, {}> {
     this.sphere.material = this.props.material;
     this.sphere.position = this.props.position;
 
-    //this.sphere.setPhysicsState(BABYLON.PhysicsEngine.SphereImpostor, { mass: this.props.mass, friction: 1, restitution: 1 });
+    let physicalSphere = this.sphere.setPhysicsState(BABYLON.PhysicsEngine.SphereImpostor, { mass: this.props.mass, friction: 1 });
     //this.sphere.onCollide = event => console.log(event);
 
     var animationBox = new BABYLON.Animation("myAnimation", "scaling.x", 30, BABYLON.Animation.ANIMATIONTYPE_FLOAT, BABYLON.Animation.ANIMATIONLOOPMODE_CYCLE);
@@ -54,23 +54,12 @@ class Sphere extends React.Component<Props, {}> {
 
     animationBox.setKeys(keys);
     this.sphere.animations.push(animationBox);
-    this.props.scene.beginAnimation(this.sphere, 0, 100, true);
+    //this.props.scene.beginAnimation(this.sphere, 0, 100, true);
 
-    var speedCharacter = 8;
-    var gravity = 0.15;
-    var character = this.sphere;
-
-    var forwards = new BABYLON.Vector3(Math.sin(character.rotation.y) / speedCharacter, gravity, Math.cos(character.rotation.y) / speedCharacter);
-    forwards.negate();
-    character.moveWithCollisions(forwards);
-    // or
-    var backwards = new BABYLON.Vector3(Math.sin(character.rotation.y) / speedCharacter, -gravity, Math.cos(character.rotation.y) / speedCharacter);
-    character.moveWithCollisions(backwards);
-
-    //Runs every frame
     this.props.scene.registerBeforeRender(function () {
-  		this.sphere.moveWithCollisions(this.props.scene.gravity);
-  	}.bind(this));
+      physicalSphere.linearVelocity.scaleEqual(.92);
+      physicalSphere.angularVelocity.scaleEqual(.92);
+    });
   }
 
   componentWillUnmount() {

@@ -5,15 +5,19 @@ interface Props {
   register: (ground: BABYLON.Mesh) => void;
   scene: BABYLON.Scene;
   material: BABYLON.StandardMaterial;
+  size: number;
+  position: BABYLON.Vector3;
+  rotation: BABYLON.Vector3;
 }
 
 class Ground extends React.Component<Props, {}> {
   ground: BABYLON.Mesh;
 
   componentDidMount() {
-    this.ground = BABYLON.Mesh.CreateGround("ground", 500, 500, 2, this.props.scene);
-    this.ground.position.y = -10;
+    this.ground = BABYLON.Mesh.CreatePlane("plane", this.props.size, this.props.scene);
+    this.ground.position = this.props.position;
     this.ground.material = this.props.material;
+    this.ground.rotation = this.props.rotation;
     this.ground.checkCollisions = true;
     this.ground.setPhysicsState(BABYLON.PhysicsEngine.PlaneImpostor, {mass: 0});
 
