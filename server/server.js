@@ -19,7 +19,7 @@ app.get('*', function (request, response){
 
 
 //Start listening
-http.listen(28880, function() {
-  initialLog.push('Listening on port 28880 ...');
+http.listen(28882, function() {
+  initialLog.push('Listening on port 28882 ...');
   console.log('start', initialLog.join(', '));
 });
